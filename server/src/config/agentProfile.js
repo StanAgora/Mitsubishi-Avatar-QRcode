@@ -22,7 +22,21 @@ function asrConfig() {
   }
 }
 
-function llmConfig() {
+const DEFAULT_GREETING_TEMPLATE =
+  'ご訪問ありがとうございます。{{XXX}}、私は三菱のAIアシスタント、インスパイアです。どなたをお探しですか？それとも、他に何かお手伝いできることはありますか？'
+const DEFAULT_GREETING_NO_NAME =
+  'ご訪問ありがとうございます。私は三菱のAIアシスタント、インスパイアです。どなたをお探しですか？それとも、他に何かお手伝いできることはありますか？'
+
+// `visitorName` comes from the input box on the PC landing page (typed
+// before the QR code is shown/scanned). Falls back to a name-less greeting
+// when nothing was entered.
+function buildGreeting(visitorName) {
+  const template = process.env.LLM_GREETING_MESSAGE || DEFAULT_GREETING_TEMPLATE
+  if (visitorName) return template.replace('{{XXX}}', visitorName)
+  return template.includes('{{XXX}}') ? DEFAULT_GREETING_NO_NAME : template
+}
+
+function llmConfig(visitorName) {
   return {
     url: process.env.LLM_URL,
     api_key: process.env.LLM_API_KEY,
@@ -32,9 +46,7 @@ function llmConfig() {
         content: loadSystemPrompt(),
       },
     ],
-    greeting_message:
-      process.env.LLM_GREETING_MESSAGE ||
-      'お電話ありがとうございます。私は三菱のAIアシスタント、インスパイアです。どなたをお探しですか？それとも他に何かお手伝いできることはありますか？',
+    greeting_message: buildGreeting(visitorName),
     failure_message:
       process.env.LLM_FAILURE_MESSAGE || '申し訳ございません、もう一度お問い合わせ内容をお伝えいただけますでしょうか？',
     params: {
@@ -74,7 +86,15 @@ function avatarConfig({ avatarUid, avatarToken }) {
   }
 }
 
-export function buildAgentProperties({ channel, agentToken, agentUid, remoteUids, avatarUid, avatarToken }) {
+export function buildAgentProperties({
+  channel,
+  agentToken,
+  agentUid,
+  remoteUids,
+  avatarUid,
+  avatarToken,
+  visitorName,
+}) {
   return {
     channel,
     token: agentToken,
@@ -94,7 +114,7 @@ export function buildAgentProperties({ channel, agentToken, agentUid, remoteUids
       data_channel: process.env.DATA_CHANNEL || 'rtm',
     },
     asr: asrConfig(),
-    llm: llmConfig(),
+    llm: llmConfig(visitorName),
     tts: ttsConfig(),
     avatar: avatarConfig({ avatarUid, avatarToken }),
   }

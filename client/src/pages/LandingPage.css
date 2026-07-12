@@ -40,6 +40,25 @@
   font-size: 16px;
 }
 
+.landing__visitor-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+  font-size: 14px;
+}
+
+.landing__visitor-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.landing__visitor-input::placeholder {
+  color: #707070;
+}
+
 .landing__qr {
   padding: 20px;
   background: #ffffff;

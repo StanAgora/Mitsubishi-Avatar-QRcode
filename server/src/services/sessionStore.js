@@ -45,8 +45,19 @@ export function cancelSession(sessionId) {
   return setState(sessionId, 'cancelled')
 }
 
+export function setVisitorName(sessionId, visitorName) {
+  const session = getOrCreate(sessionId)
+  session.visitorName = visitorName
+  session.updatedAt = Date.now()
+  return session
+}
+
 export function getStatus(sessionId) {
   cleanup()
   const session = sessions.get(sessionId)
-  return { state: session?.state ?? 'none', updatedAt: session?.updatedAt ?? null }
+  return {
+    state: session?.state ?? 'none',
+    updatedAt: session?.updatedAt ?? null,
+    visitorName: session?.visitorName ?? '',
+  }
 }

@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { buildRtcToken, buildRtcAndRtmToken } from './tokenService.js'
 import { buildAgentProperties } from '../config/agentProfile.js'
+import { getStatus } from './sessionStore.js'
 
 function getAuthHeader() {
   const customerId = process.env.AGORA_CUSTOMER_ID
@@ -37,6 +38,10 @@ export async function joinAgent({ channel, uid }) {
   const agentToken = buildRtcAndRtmToken({ channel, uid: agentUid })
   const avatarToken = buildRtcToken({ channel, uid: avatarUid })
 
+  // `channel` doubles as the landing page's session id, so the visitor name
+  // typed into the PC before the QR code was scanned lives under the same key.
+  const { visitorName } = getStatus(channel)
+
   const properties = buildAgentProperties({
     channel,
     agentToken,
@@ -44,6 +49,7 @@ export async function joinAgent({ channel, uid }) {
     remoteUids: [uid],
     avatarUid,
     avatarToken,
+    visitorName,
   })
 
   const payload = { name: `avatar-session-${channel}`, properties }

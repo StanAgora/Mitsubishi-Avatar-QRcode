@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import { createSessionId, buildCheckinUrl } from '../lib/session.js'
-import { fetchSessionStatus, markSessionScanned, confirmSession } from '../lib/api.js'
+import { fetchSessionStatus, markSessionScanned, confirmSession, setVisitorName } from '../lib/api.js'
 import './LandingPage.css'
 
 const POLL_INTERVAL_MS = 1500
+const VISITOR_NAME_SYNC_DEBOUNCE_MS = 400
 
 export default function LandingPage() {
   const navigate = useNavigate()
@@ -13,6 +14,17 @@ export default function LandingPage() {
   const sessionId = useMemo(() => createSessionId(), [])
   const checkinUrl = useMemo(() => buildCheckinUrl(sessionId), [sessionId])
   const [state, setState] = useState('none')
+  const [visitorName, setVisitorNameInput] = useState('')
+  const visitorNameSyncTimer = useRef(null)
+
+  function handleVisitorNameChange(event) {
+    const name = event.target.value
+    setVisitorNameInput(name)
+    clearTimeout(visitorNameSyncTimer.current)
+    visitorNameSyncTimer.current = setTimeout(() => {
+      setVisitorName(sessionId, name).catch((err) => console.error('Failed to sync visitor name', err))
+    }, VISITOR_NAME_SYNC_DEBOUNCE_MS)
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -43,6 +55,8 @@ export default function LandingPage() {
   // scanned it and tapped "确认签到", without needing an actual phone.
   async function handleSimulateScan() {
     try {
+      clearTimeout(visitorNameSyncTimer.current)
+      await setVisitorName(sessionId, visitorName)
       await markSessionScanned(sessionId)
       await confirmSession(sessionId)
       navigate(`/session/${sessionId}`)
@@ -57,6 +71,13 @@ export default function LandingPage() {
       <div className="landing__card">
         <h1 className="landing__title">Mitsubishi Avatar Assistant</h1>
         <p className="landing__subtitle">Scan the QR code to start a conversation</p>
+        <input
+          type="text"
+          className="landing__visitor-input"
+          placeholder="来訪者様のお名前（任意）"
+          value={visitorName}
+          onChange={handleVisitorNameChange}
+        />
         <div
           className="landing__qr"
           onDoubleClick={handleSimulateScan}

@@ -48,3 +48,10 @@ export function cancelSession(sessionId) {
 export function fetchSessionStatus(sessionId) {
   return requestJson(`/session/${sessionId}/status`)
 }
+
+export function setVisitorName(sessionId, name) {
+  return requestJson(`/session/${sessionId}/visitor-name`, {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  })
+}
