@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        APP_VITE_BASE_PATH: ${APP_VITE_BASE_PATH:-/}
+        APP_VITE_BASE_PATH: ${APP_VITE_BASE_PATH:-/avatar/}
         VITE_AGORA_APP_ID: ${VITE_AGORA_APP_ID}
     env_file:
       - ./.env

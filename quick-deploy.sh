@@ -1,25 +1,24 @@
 #!/usr/bin/env bash
 #
-# Mitsubishi Avatar QR Code demo - 一键构建并部署（前后端合一）
+# Mitsubishi Avatar QR Code demo - 主机一键构建并部署（前后端一体）
 #
 # 用法：
 #   ./quick-deploy.sh
-#   APP_PREFIX=/mitsubishi-avatar/ ./quick-deploy.sh
+#   APP_PREFIX=/avatar/ ./quick-deploy.sh
 #
 # 说明：
-# - 默认从根目录构建的路径设置为 APP_PREFIX（默认 /），需要与反向代理网关
-#   location 前缀保持一致。
-# - 容器只监听 :8080，不对宿主机公网端口，只挂在 whip-network 上（与
-#   共享反向代理 nginx 同一网络），由 nginx 反代到 mitsubishi-avatar-app:8080。
-# - .env 同时包含前端构建期变量（VITE_ 前缀）和后端运行期变量，构建期变量
-#   会作为 docker compose build 的 args 传入（参见 docker-compose.yml）。
+# - 默认把前端构建基路径设置为 APP_PREFIX（默认 /avatar/），
+#   需与前置网关 location 前缀保持一致。
+# - Express 仅容器内监听 :8080，不映射到宿主机。
+# - 仅 whip-network 内其它容器（如前置网关）可访问 mitsubishi-avatar-app:8080。
+# - 构建：容器内 NODE_ENV=production + vite build --mode production。
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 ENV_FILE="${SCRIPT_DIR}/.env"
-DEFAULT_PREFIX="/"
+DEFAULT_PREFIX="/avatar/"
 APP_PREFIX="${APP_PREFIX:-$DEFAULT_PREFIX}"
 
 if [[ ! -f "$COMPOSE_FILE" ]]; then
@@ -36,7 +35,7 @@ if [[ ! -f "$ENV_FILE" ]]; then
 fi
 
 if [[ "$APP_PREFIX" != /* ]]; then
-  echo "错误: APP_PREFIX 必须以 / 开头，例如 /mitsubishi-avatar/"
+  echo "错误: APP_PREFIX 必须以 / 开头，例如 /avatar/"
   exit 1
 fi
 if [[ "$APP_PREFIX" != */ ]]; then
@@ -49,12 +48,13 @@ echo "==> Ensure docker network whip-network exists"
 docker network create whip-network >/dev/null 2>&1 || true
 
 export APP_VITE_BASE_PATH="$APP_PREFIX"
+export NODE_ENV=production
 
-echo "==> Build image and start service"
+echo "==> Build image and start service (Vite --mode production)"
 docker compose -f "$COMPOSE_FILE" build
 docker compose -f "$COMPOSE_FILE" up -d --remove-orphans
 
-echo "==> 完成（容器未绑定宿主机端口，需走反向代理）："
-echo "    公网访问需走反向代理，与构建路径保持一致，例如："
-echo "    页面:  https://<域名>${APP_PREFIX}"
-echo "    API :  https://<域名>${APP_PREFIX%/}/api/...   （前端请求就以 ${APP_PREFIX%/}/api/... 相对当前 origin）"
+echo "==> Done（未绑定宿主机端口；勿将 :8080 暴露到公网）"
+echo "    公网访问须走前置网关，与构建前缀一致，例如："
+echo "    SPA:  https://<域名>${APP_PREFIX}"
+echo "    API:  https://<域名>${APP_PREFIX%/}/api/...   （同页请求即 ${APP_PREFIX%/}/api/... 相对当前 origin）"

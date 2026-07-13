@@ -14,7 +14,7 @@ RUN npm ci
 COPY . .
 
 # APP_VITE_BASE_PATH lets the app be deployed under a reverse-proxy subpath
-# (e.g. /mitsubishi-avatar/) instead of domain root.
+# (e.g. /avatar/) instead of domain root.
 # VITE_AGORA_APP_ID must be present at *build* time — Vite inlines
 # import.meta.env.VITE_* values into the static bundle, so this can't be
 # supplied later via the container's runtime environment.
