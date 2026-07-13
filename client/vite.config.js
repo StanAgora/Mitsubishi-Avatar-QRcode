@@ -7,7 +7,10 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // self-signed cert) is required even in dev because getUserMedia is only
 // available in a secure context, and LAN IP access (needed for phone QR
 // scanning) doesn't count as one over plain HTTP.
+// APP_VITE_BASE_PATH lets this app be deployed under a reverse-proxy subpath
+// (e.g. /mitsubishi-avatar/) instead of domain root — set by quick-deploy.sh.
 export default defineConfig({
+  base: process.env.APP_VITE_BASE_PATH || '/',
   plugins: [react(), basicSsl()],
   server: {
     host: true,

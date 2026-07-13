@@ -126,7 +126,7 @@ export default function AgentPage() {
   return (
     <div className="agent-page">
       <video ref={videoRef} className="agent-page__video" autoPlay playsInline />
-      <img src="/deltapath-logo.png" alt="Deltapath" className="agent-page__logo" />
+      <img src={`${import.meta.env.BASE_URL}deltapath-logo.png`} alt="Deltapath" className="agent-page__logo" />
       <button
         type="button"
         className="agent-page__exit"

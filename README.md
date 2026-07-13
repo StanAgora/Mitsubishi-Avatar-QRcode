@@ -46,3 +46,23 @@ npm run start
 
 Builds the client and starts Express, which serves the built assets and the
 API from one process/port (`PORT` env var, default 8080).
+
+## Docker / CI deploy
+
+```bash
+cp .env.example .env
+# fill in VITE_AGORA_APP_ID plus all the backend vars (same file — see
+# .env.example's comments for why frontend and backend vars live together here)
+./quick-deploy.sh
+# or, to deploy under a reverse-proxy subpath instead of domain root:
+APP_PREFIX=/mitsubishi-avatar/ ./quick-deploy.sh
+```
+
+Builds the image (`Dockerfile`, multi-stage: builds the client, then a
+production-only server + built client runtime) and starts it via
+`docker-compose.yml`. The container publishes no host ports — it only joins
+the external `whip-network` docker network, expecting a shared reverse-proxy
+nginx (also on that network) to proxy to `mitsubishi-avatar-app:8080`.
+`APP_VITE_BASE_PATH` (derived from `APP_PREFIX`) must match that proxy's
+location prefix, since it's baked into the client bundle's asset/API/router
+paths at build time.

@@ -17,6 +17,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
+
 app.use('/api/token', tokenRouter)
 app.use('/api/agent', agentRouter)
 app.use('/api/session', sessionRouter)

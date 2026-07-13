@@ -67,7 +67,7 @@ export default function LandingPage() {
 
   return (
     <div className="landing">
-      <img src="/deltapath-logo.png" alt="Deltapath" className="landing__logo" />
+      <img src={`${import.meta.env.BASE_URL}deltapath-logo.png`} alt="Deltapath" className="landing__logo" />
       <div className="landing__card">
         <h1 className="landing__title">Mitsubishi Avatar Assistant</h1>
         <p className="landing__subtitle">Scan the QR code to start a conversation</p>

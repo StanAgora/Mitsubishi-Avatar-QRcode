@@ -8,5 +8,5 @@ export function createSessionId() {
 // The QR code sends the phone to the check-in page, not the agent page —
 // the agent's avatar is loaded on the PC that displayed the QR code.
 export function buildCheckinUrl(sessionId) {
-  return `${window.location.origin}/checkin/${sessionId}`
+  return `${window.location.origin}${import.meta.env.BASE_URL}checkin/${sessionId}`
 }

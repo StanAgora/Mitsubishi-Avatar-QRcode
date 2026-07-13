@@ -1,4 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api'
+// Falls back to the site's own base path (root, or a reverse-proxy subpath
+// like /mitsubishi-avatar/) so requests still hit this app when deployed
+// behind a shared gateway rather than at domain root.
+const API_BASE = import.meta.env.VITE_API_BASE_URL || `${import.meta.env.BASE_URL}api`
 
 async function requestJson(path, options) {
   const res = await fetch(`${API_BASE}${path}`, {
