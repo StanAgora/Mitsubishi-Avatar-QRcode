@@ -68,11 +68,7 @@ function ttsConfig() {
         voice_id: process.env.TTS_VOICE_ID || 'jap_female_1222_1',
         sample_rate: Number(process.env.TTS_SAMPLE_RATE || 8000),
       },
-      // 'auto' lets MiniMax detect the language of each response's text and
-      // pronounce it accordingly, instead of forcing every response through
-      // Japanese phonetics — needed now that the agent replies in whichever
-      // language (JA/EN/ZH) the visitor spoke (see external/prompt.md RULE 2).
-      language_boost: process.env.TTS_LANGUAGE_BOOST || 'auto',
+      language_boost: process.env.TTS_LANGUAGE_BOOST || 'Japanese',
     },
   }
 }
