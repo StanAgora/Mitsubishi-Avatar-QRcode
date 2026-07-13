@@ -152,9 +152,9 @@ export default function AgentPage() {
       {status !== 'connected' && (
         <div className="agent-page__overlay">
           {status === 'error' ? (
-            <p className="agent-page__error">连接失败：{errorMessage}</p>
+            <p className="agent-page__error">接続に失敗しました：{errorMessage}</p>
           ) : (
-            <p className="agent-page__loading">正在连接 Avatar 助手...</p>
+            <p className="agent-page__loading">アバターアシスタントに接続中...</p>
           )}
         </div>
       )}

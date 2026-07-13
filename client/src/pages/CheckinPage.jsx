@@ -39,42 +39,42 @@ export default function CheckinPage() {
   return (
     <div className="checkin">
       <div className="checkin__card">
-        <h1 className="checkin__title">Mitsubishi Avatar Assistant</h1>
+        <h1 className="checkin__title">三菱アバターアシスタント</h1>
 
         {state === 'confirmed' ? (
           <p className="checkin__message checkin__message--success">
-            已签到，请在大屏幕上查看助手
+            チェックインが完了しました。大画面でアシスタントをご確認ください
           </p>
         ) : state === 'cancelled' ? (
           <>
-            <p className="checkin__message">已取消签到</p>
+            <p className="checkin__message">チェックインを取り消しました</p>
             <button className="checkin__button checkin__button--primary" onClick={handleConfirm}>
-              确认签到
+              チェックインを確認
             </button>
           </>
         ) : (
           <>
-            <p className="checkin__subtitle">请确认是否开始与 Avatar 助手对话</p>
+            <p className="checkin__subtitle">アバターアシスタントとの対話を開始しますか？</p>
             <div className="checkin__actions">
               <button
                 className="checkin__button checkin__button--primary"
                 onClick={handleConfirm}
                 disabled={state === 'confirming'}
               >
-                确认签到
+                チェックインを確認
               </button>
               <button
                 className="checkin__button checkin__button--secondary"
                 onClick={handleCancel}
                 disabled={state === 'cancelling'}
               >
-                取消签到
+                チェックインを取り消す
               </button>
             </div>
           </>
         )}
 
-        {error && <p className="checkin__error">操作失败：{error}</p>}
+        {error && <p className="checkin__error">操作に失敗しました：{error}</p>}
       </div>
     </div>
   )

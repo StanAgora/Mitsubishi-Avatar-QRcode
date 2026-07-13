@@ -52,7 +52,7 @@ export default function LandingPage() {
   }, [sessionId, navigate])
 
   // Dev/demo shortcut: double-clicking the QR code simulates a phone having
-  // scanned it and tapped "确认签到", without needing an actual phone.
+  // scanned it and tapped "confirm check-in", without needing an actual phone.
   async function handleSimulateScan() {
     try {
       clearTimeout(visitorNameSyncTimer.current)
@@ -69,8 +69,8 @@ export default function LandingPage() {
     <div className="landing">
       <img src={`${import.meta.env.BASE_URL}deltapath-logo.png`} alt="Deltapath" className="landing__logo" />
       <div className="landing__card">
-        <h1 className="landing__title">Mitsubishi Avatar Assistant</h1>
-        <p className="landing__subtitle">Scan the QR code to start a conversation</p>
+        <h1 className="landing__title">三菱アバターアシスタント</h1>
+        <p className="landing__subtitle">QRコードをスキャンして会話を開始してください</p>
         <input
           type="text"
           className="landing__visitor-input"
@@ -81,16 +81,16 @@ export default function LandingPage() {
         <div
           className="landing__qr"
           onDoubleClick={handleSimulateScan}
-          title="Double-click to simulate scanning + confirming check-in"
+          title="ダブルクリックでスキャンとチェックイン確認をシミュレート"
         >
           <QRCodeSVG value={checkinUrl} size={280} level="M" />
         </div>
         {state === 'scanned' || state === 'cancelled' ? (
           <p className="landing__status landing__status--scanned">
-            已扫码，等待手机端确认签到...
+            スキャン済みです。スマートフォンでのチェックイン確認をお待ちください...
           </p>
         ) : (
-          <p className="landing__hint">Point your phone camera at the code above</p>
+          <p className="landing__hint">上のQRコードにスマートフォンのカメラを向けてください</p>
         )}
       </div>
     </div>
