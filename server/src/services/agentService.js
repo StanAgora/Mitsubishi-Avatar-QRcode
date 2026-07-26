@@ -39,8 +39,9 @@ export async function joinAgent({ channel, uid }) {
   const avatarToken = buildRtcToken({ channel, uid: avatarUid })
 
   // `channel` doubles as the landing page's session id, so the visitor name
-  // typed into the PC before the QR code was scanned lives under the same key.
-  const { visitorName } = getStatus(channel)
+  // and the language picked on the language-select page (after check-in,
+  // before this join call) live under the same key.
+  const { visitorName, language } = getStatus(channel)
 
   const properties = buildAgentProperties({
     channel,
@@ -50,6 +51,7 @@ export async function joinAgent({ channel, uid }) {
     avatarUid,
     avatarToken,
     visitorName,
+    language,
   })
 
   const payload = { name: `avatar-session-${channel}`, properties }

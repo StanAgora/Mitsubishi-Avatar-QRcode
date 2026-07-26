@@ -52,6 +52,15 @@ export function setVisitorName(sessionId, visitorName) {
   return session
 }
 
+const SUPPORTED_LANGUAGES = ['ja', 'en', 'zh']
+
+export function setLanguage(sessionId, language) {
+  const session = getOrCreate(sessionId)
+  session.language = SUPPORTED_LANGUAGES.includes(language) ? language : 'ja'
+  session.updatedAt = Date.now()
+  return session
+}
+
 export function getStatus(sessionId) {
   cleanup()
   const session = sessions.get(sessionId)
@@ -59,5 +68,6 @@ export function getStatus(sessionId) {
     state: session?.state ?? 'none',
     updatedAt: session?.updatedAt ?? null,
     visitorName: session?.visitorName ?? '',
+    language: session?.language ?? 'ja',
   }
 }

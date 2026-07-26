@@ -36,7 +36,7 @@ export default function LandingPage() {
 
         if (status.state === 'confirmed') {
           clearInterval(interval)
-          navigate(`/session/${sessionId}`)
+          navigate(`/language/${sessionId}`)
           return
         }
         setState(status.state)
@@ -59,7 +59,7 @@ export default function LandingPage() {
       await setVisitorName(sessionId, visitorName)
       await markSessionScanned(sessionId)
       await confirmSession(sessionId)
-      navigate(`/session/${sessionId}`)
+      navigate(`/language/${sessionId}`)
     } catch (err) {
       console.error('Failed to simulate scan/confirm', err)
     }

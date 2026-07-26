@@ -58,3 +58,10 @@ export function setVisitorName(sessionId, name) {
     body: JSON.stringify({ name }),
   })
 }
+
+export function setLanguage(sessionId, language) {
+  return requestJson(`/session/${sessionId}/language`, {
+    method: 'POST',
+    body: JSON.stringify({ language }),
+  })
+}
