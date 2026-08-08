@@ -52,7 +52,7 @@ export function setVisitorName(sessionId, visitorName) {
   return session
 }
 
-const SUPPORTED_LANGUAGES = ['ja', 'en', 'zh']
+const SUPPORTED_LANGUAGES = ['ja', 'en', 'zh', 'hk']
 
 export function setLanguage(sessionId, language) {
   const session = getOrCreate(sessionId)

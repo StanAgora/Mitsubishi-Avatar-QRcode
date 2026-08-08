@@ -9,16 +9,30 @@ import { dirname, join } from 'path'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-function loadSystemPrompt() {
+// Cantonese (hk) uses its own prompt file since it needs a dedicated
+// persona/dialect script; other languages keep sharing external/prompt.md.
+const SYSTEM_PROMPT_FILE_BY_LANGUAGE = {
+  hk: 'prompt-hk.md',
+}
+
+function loadSystemPrompt(language) {
   if (process.env.LLM_SYSTEM_PROMPT) return process.env.LLM_SYSTEM_PROMPT
-  const promptPath = join(__dirname, '../../../external/prompt.md')
+  const fileName = SYSTEM_PROMPT_FILE_BY_LANGUAGE[language] || 'prompt.md'
+  const promptPath = join(__dirname, '../../../external', fileName)
   return readFileSync(promptPath, 'utf-8')
 }
 
-function asrConfig() {
+// ASR language is shared across ja/en/zh via ASR_LANGUAGE (existing
+// behavior); hk gets its own zh-HK override since Cantonese needs a
+// distinct ASR language code.
+const ASR_LANGUAGE_OVERRIDE_BY_LANGUAGE = {
+  hk: 'zh-HK',
+}
+
+function asrConfig(language) {
   return {
     vendor: process.env.ASR_VENDOR || 'ares',
-    language: process.env.ASR_LANGUAGE || 'ja-JP',
+    language: ASR_LANGUAGE_OVERRIDE_BY_LANGUAGE[language] || process.env.ASR_LANGUAGE || 'ja-JP',
   }
 }
 
@@ -38,12 +52,17 @@ const GREETING_BY_LANGUAGE = {
     withName: '感谢您的光临。{{XXX}}，我是三菱的AI助手 Inspire。请问您要找哪位，或者还有什么我可以帮您的吗？',
     noName: '感谢您的光临。我是三菱的AI助手 Inspire。请问您要找哪位，或者还有什么我可以帮您的吗？',
   },
+  hk: {
+    withName: '歡迎閣下光臨，{{XXX}}，我係三菱嘅AI助手 Inspire。請問想搵邊位，定有其他嘢可以幫到你？',
+    noName: '歡迎閣下光臨，我係三菱嘅AI助手 Inspire。請問想搵邊位，定有其他嘢可以幫到你？',
+  },
 }
 
 const FAILURE_BY_LANGUAGE = {
   ja: '申し訳ございません、もう一度お問い合わせ内容をお伝えいただけますでしょうか？',
   en: "I'm sorry, could you please tell me again what you'd like help with?",
   zh: '非常抱歉，可以请您再说一次您的问题吗？',
+  hk: '唔好意思，唔該你再講一次想搵咩幫手呀？',
 }
 
 // `visitorName` comes from the input box on the PC landing page (typed
@@ -62,7 +81,7 @@ function llmConfig(visitorName, language) {
     system_messages: [
       {
         role: 'system',
-        content: loadSystemPrompt(),
+        content: loadSystemPrompt(language),
       },
     ],
     greeting_message: buildGreeting(visitorName, language),
@@ -81,20 +100,26 @@ const TTS_VOICE_BY_LANGUAGE = {
   ja: { voice_id: 'jap_female_1222_1', language_boost: 'Japanese' },
   en: { voice_id: 'jiashu_en_0111_24', language_boost: 'English' },
   zh: { voice_id: 'ai_assistant_008', language_boost: 'Chinese' },
+  hk: { voice_id: 'Cantonese_ProfessionalHost（F)', language_boost: 'Chinese,Yue', vol: 1.6 },
 }
 
+// Cantonese runs on its own MiniMax key/model/group_id (TTS_HK_* env vars),
+// so it doesn't share the shared TTS_* account used by ja/en/zh.
 function ttsConfig(language) {
   const voice = TTS_VOICE_BY_LANGUAGE[language] || TTS_VOICE_BY_LANGUAGE.ja
+  const isHk = language === 'hk'
   return {
     vendor: process.env.TTS_VENDOR || 'minimax',
     params: {
-      key: process.env.TTS_KEY,
-      url: process.env.TTS_URL || 'wss://api-uw.minimax.io/ws/v1/t2a_v2',
-      model: process.env.TTS_MODEL || 'speech-02-turbo',
-      group_id: process.env.TTS_GROUP_ID,
+      key: (isHk && process.env.TTS_HK_KEY) || process.env.TTS_KEY,
+      url: (isHk && process.env.TTS_HK_URL) || process.env.TTS_URL || 'wss://api-uw.minimax.io/ws/v1/t2a_v2',
+      model: (isHk && process.env.TTS_HK_MODEL) || process.env.TTS_MODEL || 'speech-02-turbo',
+      group_id: (isHk && process.env.TTS_HK_GROUP_ID) || process.env.TTS_GROUP_ID,
       voice_setting: {
         voice_id: voice.voice_id,
         sample_rate: Number(process.env.TTS_SAMPLE_RATE || 16000),
+        ...(voice.vol ? { vol: voice.vol } : {}),
+        ...(isHk ? { speed: Number(process.env.TTS_HK_SPEED || 1) } : {}),
       },
       language_boost: voice.language_boost,
     },
@@ -142,7 +167,7 @@ export function buildAgentProperties({
       audio_scenario: process.env.AUDIO_SCENARIO || 'aiserver',
       data_channel: process.env.DATA_CHANNEL || 'rtm',
     },
-    asr: asrConfig(),
+    asr: asrConfig(language),
     llm: llmConfig(visitorName, language),
     tts: ttsConfig(language),
     avatar: avatarConfig({ avatarUid, avatarToken }),
