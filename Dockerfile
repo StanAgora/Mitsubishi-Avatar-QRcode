@@ -36,6 +36,7 @@ RUN npm ci --omit=dev --workspace=server
 
 COPY server ./server
 COPY external/prompt.md ./external/prompt.md
+COPY external/prompt-hk.md ./external/prompt-hk.md
 COPY --from=builder /app/client/dist ./client/dist
 
 EXPOSE 8080
